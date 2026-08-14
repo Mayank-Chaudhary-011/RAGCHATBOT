@@ -1,21 +1,43 @@
-import numpy as np
-from sentence_transformers import SentenceTransformer
+import os
+from openai import OpenAI
+from dotenv import load_dotenv
+
+load_dotenv()
+
+EMBED_MODEL = "nvidia/nv-embedqa-e5-v5"
 
 class Embedder:
-    MODEL_NAME = "BAAI/bge-small-en-v1.5"
-    QUERY_PREFIX = "Represent this sentence for searching relevant passages: "
-
-
     def __init__(self):
-        print(f"Loading embedding model:{self.MODEL_NAME}")
-        self.model = SentenceTransformer(self.MODEL_NAME)
-        print(f"Embedding dimensions : {self.model.get_embedding_dimension()}")
+        self.client = OpenAI(
+            api_key=os.getenv("NVIDIA_API_KEY"),
+            base_url="https://integrate.api.nvidia.com/v1"
+        )
+        print(f"Embedder ready | Model: {EMBED_MODEL}")
 
-    def embed_batch(self,texts:list[str]) -> np.ndarray:
-        """EMbed a list of texts (used during ingestion)"""
-        return np.array(self.model.encode(texts ,show_progress_bar=True,batch_size=32))  #type:ignore[arg-type]
+    def embed_batch(self, texts: list[str]) -> list[list[float]]:
+        result = []
+        batch_size = 10
+        total = len(texts)
 
-    def embed_query(self,query:str) -> list[float]:
-        """Embed a single query string (used during retrieval)"""
+        for i in range(0, total, batch_size):
+            batch = texts[i : i + batch_size]
+            print(f"  Embedding chunks {i+1}-{min(i+batch_size, total)} of {total}...")
+            resp = self.client.embeddings.create(
+                input=batch,
+                model=EMBED_MODEL,
+                encoding_format="float",
+                extra_body={"input_type": "passage", "truncate": "END"}
+            )
+            for item in resp.data:
+                result.append(item.embedding)
 
-        return list(map(float,self.model.encode([self.QUERY_PREFIX + query])[0])) #type:ignore[arg-type]
+        return result
+
+    def embed_query(self, query: str) -> list[float]:
+        resp = self.client.embeddings.create(
+            input=query,
+            model=EMBED_MODEL,
+            encoding_format="float",
+            extra_body={"input_type": "query", "truncate": "END"}
+        )
+        return resp.data[0].embedding

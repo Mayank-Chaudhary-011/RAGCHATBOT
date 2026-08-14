@@ -25,7 +25,7 @@ class VectorStore:
             ids.append(f"doc_{uuid.uuid4()}")
             texts.append(doc.page_content)
             metadatas.append({k:str(v) for k , v in doc.metadata.items()})
-            vecs.append(emb.tolist())
+            vecs.append(emb)
 
         self.collection.add(ids=ids , documents=texts , metadatas=metadatas , embeddings=vecs)
         print(f"Added {len(ids)} Chunks | Total in store : {self.collection.count()}")
