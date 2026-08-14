@@ -13,7 +13,9 @@ class VectorStore:
         self.client = chromadb.PersistentClient(path=PERSIST_DIR)
         self.collection = self.client.get_or_create_collection(
             name=COLLECTION_NAME,
-            metadata={"description":"3GPP Telecom Standards RAG Collection"})
+            metadata={
+                "hnsw:space":"cosine",
+                "description":"3GPP Telecom Standards RAG Collection"})
         print(f"VectorStore ready | Collection: {COLLECTION_NAME} | Docs : {self.collection.count()}")
 
     def add_documents(self,documents:list[Document],embeddings) -> None:
