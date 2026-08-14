@@ -18,7 +18,7 @@ def check_hallucination_risk(retrieved_docs:list[dict], answer:str) -> dict:
 
     return {
         "answer":answer,
-        "confidence":"high" if top_score >= 0.65 else "medium",
+        "confidence":"high" if top_score >= 0.50 else "medium",
         "grounded":NO_CONTEXT_REPLY.lower() not in answer.lower(),
         "sources":list({d["metadata"].get("source","unknown") for d in retrieved_docs}),
         "top_score":round(top_score,4),
