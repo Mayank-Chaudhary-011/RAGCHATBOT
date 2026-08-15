@@ -78,6 +78,22 @@
         display: flex;
         flex-direction: column;
         gap: 18px;
+        scrollbar-width: thin;
+        scrollbar-color: #1a3526 transparent;
+      }
+
+      #chat-container::-webkit-scrollbar {
+        width: 4px;
+      }
+      #chat-container::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      #chat-container::-webkit-scrollbar-thumb {
+        background: #1a3526;
+        border-radius: 4px;
+      }
+      #chat-container::-webkit-scrollbar-thumb:hover {
+        background: #e8602c;
       }
 
       .message {
@@ -303,7 +319,7 @@
       </div>
       <div>
         <h1>3GPP RAG Chatbot</h1>
-        <p>Powered by NVIDIA NIM · ChromaDB · Sentence Transformers</p>
+        <p>Powered by NVIDIA NIM · ChromaDB · nv-embedqa-e5-v5</p>
       </div>
       <span class="badge">Near-Zero Hallucination</span>
     </header>
