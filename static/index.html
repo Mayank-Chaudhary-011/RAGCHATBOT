@@ -1,391 +1,398 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>3GPP RAG Chatbot | Mavenir</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3GPP RAG Chatbot | Mavenir</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      background: #0d2318;
+      color: #f0ebe0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      width: 100%;
+      padding: 16px 32px;
+      background: #0a1d13;
+      border-bottom: 1px solid #1a3526;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    header .logo {
+      width: 36px;
+      height: 36px;
+      background: #e8602c;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    header h1 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #f0ebe0;
+    }
+
+    header p {
+      font-size: 11px;
+      color: #6b8c78;
+      margin-top: 2px;
+    }
+
+    .badge {
+      margin-left: auto;
+      background: transparent;
+      border: 1px solid #1a3526;
+      color: #6b8c78;
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    #chat-container {
+      flex: 1;
+      width: 100%;
+      max-width: 780px;
+      overflow-y: auto;
+      padding: 28px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      scrollbar-width: thin;
+      scrollbar-color: #1a3526 transparent;
+    }
+
+    #chat-container::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    #chat-container::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    #chat-container::-webkit-scrollbar-thumb {
+      background: #1a3526;
+      border-radius: 4px;
+    }
+
+    #chat-container::-webkit-scrollbar-thumb:hover {
+      background: #e8602c;
+    }
+
+    .message {
+      display: flex;
+      gap: 10px;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .message.user {
+      flex-direction: row-reverse;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
       }
 
-      body {
-        font-family: "Inter", sans-serif;
-        background: #0d2318;
-        color: #f0ebe0;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .message.user .avatar {
+      background: #e8602c;
+    }
+
+    .message.bot .avatar {
+      background: #1a3526;
+    }
+
+    .bubble {
+      max-width: 72%;
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .message.user .bubble {
+      background: #e8602c;
+      border-bottom-right-radius: 3px;
+      color: #fff;
+    }
+
+    .message.bot .bubble {
+      background: #0a1d13;
+      border: 1px solid #1a3526;
+      border-bottom-left-radius: 3px;
+      color: #f0ebe0;
+    }
+
+    .meta {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #1a3526;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .tag {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tag.high {
+      background: rgba(34, 197, 94, 0.1);
+      color: #4ade80;
+      border: 1px solid #166534;
+    }
+
+    .tag.medium {
+      background: rgba(232, 96, 44, 0.1);
+      color: #e8602c;
+      border: 1px solid #7c2d12;
+    }
+
+    .tag.low {
+      background: rgba(239, 68, 68, 0.1);
+      color: #f87171;
+      border: 1px solid #7f1d1d;
+    }
+
+    .tag.none {
+      background: rgba(107, 140, 120, 0.1);
+      color: #6b8c78;
+      border: 1px solid #1a3526;
+    }
+
+    .tag.source {
+      background: rgba(107, 140, 120, 0.1);
+      color: #6b8c78;
+      border: 1px solid #1a3526;
+    }
+
+    .typing {
+      display: flex;
+      gap: 4px;
+      padding: 12px 16px;
+      align-items: center;
+    }
+
+    .typing span {
+      width: 7px;
+      height: 7px;
+      background: #e8602c;
+      border-radius: 50%;
+      animation: bounce 1.2s infinite;
+    }
+
+    .typing span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .typing span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      80%,
+      100% {
+        transform: translateY(0);
       }
 
-      header {
-        width: 100%;
-        padding: 16px 32px;
-        background: #0a1d13;
-        border-bottom: 1px solid #1a3526;
-        display: flex;
-        align-items: center;
-        gap: 14px;
+      40% {
+        transform: translateY(-6px);
       }
+    }
 
-      header .logo {
-        width: 36px;
-        height: 36px;
-        background: #e8602c;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
+    #input-area {
+      width: 100%;
+      max-width: 780px;
+      padding: 12px 20px 24px;
+      display: flex;
+      gap: 8px;
+    }
 
-      header h1 {
-        font-size: 16px;
-        font-weight: 600;
-        color: #f0ebe0;
-      }
-      header p {
-        font-size: 11px;
-        color: #6b8c78;
-        margin-top: 2px;
-      }
+    #question {
+      flex: 1;
+      background: #0a1d13;
+      border: 1px solid #1a3526;
+      border-radius: 10px;
+      padding: 13px 16px;
+      font-size: 14px;
+      color: #f0ebe0;
+      font-family: "Inter", sans-serif;
+      outline: none;
+      transition: border-color 0.15s;
+      resize: none;
+      height: 50px;
+    }
 
-      .badge {
-        margin-left: auto;
-        background: transparent;
-        border: 1px solid #1a3526;
-        color: #6b8c78;
-        font-size: 11px;
-        padding: 3px 10px;
-        border-radius: 20px;
-        font-weight: 500;
-      }
+    #question:focus {
+      border-color: #e8602c;
+    }
 
-      #chat-container {
-        flex: 1;
-        width: 100%;
-        max-width: 780px;
-        overflow-y: auto;
-        padding: 28px 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 18px;
-        scrollbar-width: thin;
-        scrollbar-color: #1a3526 transparent;
-      }
+    #question::placeholder {
+      color: #3d6b52;
+    }
 
-      #chat-container::-webkit-scrollbar {
-        width: 4px;
-      }
-      #chat-container::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      #chat-container::-webkit-scrollbar-thumb {
-        background: #1a3526;
-        border-radius: 4px;
-      }
-      #chat-container::-webkit-scrollbar-thumb:hover {
-        background: #e8602c;
-      }
+    #send-btn {
+      background: #e8602c;
+      border: none;
+      border-radius: 10px;
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+      transition:
+        background 0.15s,
+        transform 0.1s;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-      .message {
-        display: flex;
-        gap: 10px;
-        animation: fadeIn 0.25s ease;
-      }
-      .message.user {
-        flex-direction: row-reverse;
-      }
+    #send-btn:hover {
+      background: #cf5227;
+    }
 
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(6px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
+    #send-btn:active {
+      transform: scale(0.95);
+    }
 
-      .avatar {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-      }
-      .message.user .avatar {
-        background: #e8602c;
-      }
-      .message.bot .avatar {
-        background: #1a3526;
-      }
+    #send-btn:disabled {
+      background: #1a3526;
+      cursor: not-allowed;
+    }
 
-      .bubble {
-        max-width: 72%;
-        padding: 12px 16px;
-        border-radius: 14px;
-        font-size: 14px;
-        line-height: 1.65;
-      }
-      .message.user .bubble {
-        background: #e8602c;
-        border-bottom-right-radius: 3px;
-        color: #fff;
-      }
-      .message.bot .bubble {
-        background: #0a1d13;
-        border: 1px solid #1a3526;
-        border-bottom-left-radius: 3px;
-        color: #f0ebe0;
-      }
+    .welcome {
+      text-align: center;
+      margin: auto;
+      opacity: 0.5;
+    }
 
-      .meta {
-        margin-top: 10px;
-        padding-top: 10px;
-        border-top: 1px solid #1a3526;
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
-        align-items: center;
-      }
+    .welcome h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #f0ebe0;
+    }
 
-      .tag {
-        font-size: 11px;
-        padding: 2px 8px;
-        border-radius: 10px;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-      }
-      .tag.high {
-        background: rgba(34, 197, 94, 0.1);
-        color: #4ade80;
-        border: 1px solid #166534;
-      }
-      .tag.medium {
-        background: rgba(232, 96, 44, 0.1);
-        color: #e8602c;
-        border: 1px solid #7c2d12;
-      }
-      .tag.low {
-        background: rgba(239, 68, 68, 0.1);
-        color: #f87171;
-        border: 1px solid #7f1d1d;
-      }
-      .tag.none {
-        background: rgba(107, 140, 120, 0.1);
-        color: #6b8c78;
-        border: 1px solid #1a3526;
-      }
-      .tag.source {
-        background: rgba(107, 140, 120, 0.1);
-        color: #6b8c78;
-        border: 1px solid #1a3526;
-      }
+    .welcome p {
+      font-size: 13px;
+      color: #6b8c78;
+    }
+  </style>
+</head>
 
-      .typing {
-        display: flex;
-        gap: 4px;
-        padding: 12px 16px;
-        align-items: center;
-      }
-      .typing span {
-        width: 7px;
-        height: 7px;
-        background: #e8602c;
-        border-radius: 50%;
-        animation: bounce 1.2s infinite;
-      }
-      .typing span:nth-child(2) {
-        animation-delay: 0.2s;
-      }
-      .typing span:nth-child(3) {
-        animation-delay: 0.4s;
-      }
-      @keyframes bounce {
-        0%,
-        80%,
-        100% {
-          transform: translateY(0);
-        }
-        40% {
-          transform: translateY(-6px);
-        }
-      }
-
-      #input-area {
-        width: 100%;
-        max-width: 780px;
-        padding: 12px 20px 24px;
-        display: flex;
-        gap: 8px;
-      }
-
-      #question {
-        flex: 1;
-        background: #0a1d13;
-        border: 1px solid #1a3526;
-        border-radius: 10px;
-        padding: 13px 16px;
-        font-size: 14px;
-        color: #f0ebe0;
-        font-family: "Inter", sans-serif;
-        outline: none;
-        transition: border-color 0.15s;
-        resize: none;
-        height: 50px;
-      }
-      #question:focus {
-        border-color: #e8602c;
-      }
-      #question::placeholder {
-        color: #3d6b52;
-      }
-
-      #send-btn {
-        background: #e8602c;
-        border: none;
-        border-radius: 10px;
-        width: 50px;
-        height: 50px;
-        cursor: pointer;
-        transition:
-          background 0.15s,
-          transform 0.1s;
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      #send-btn:hover {
-        background: #cf5227;
-      }
-      #send-btn:active {
-        transform: scale(0.95);
-      }
-      #send-btn:disabled {
-        background: #1a3526;
-        cursor: not-allowed;
-      }
-
-      .welcome {
-        text-align: center;
-        margin: auto;
-        opacity: 0.5;
-      }
-      .welcome h2 {
-        font-size: 20px;
-        font-weight: 600;
-        margin-bottom: 6px;
-        color: #f0ebe0;
-      }
-      .welcome p {
-        font-size: 13px;
-        color: #6b8c78;
-      }
-    </style>
-  </head>
-  <body>
-    <header>
-      <div class="logo">
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="white"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M5 12.55a11 11 0 0 1 14.08 0" />
-          <path d="M1.42 9a16 16 0 0 1 21.16 0" />
-          <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
-          <circle cx="12" cy="20" r="1" />
-        </svg>
-      </div>
-      <div>
-        <h1>3GPP RAG Chatbot</h1>
-        <p>Powered by NVIDIA NIM · ChromaDB · nv-embedqa-e5-v5</p>
-      </div>
-      <span class="badge">Near-Zero Hallucination</span>
-    </header>
-
-    <div id="chat-container">
-      <div class="welcome" id="welcome">
-        <h2>Ask anything about 3GPP Standards</h2>
-        <p>TS 23.501 · TS 21.915 · Grounded answers with source citations</p>
-      </div>
+<body>
+  <header>
+    <div class="logo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"
+        stroke-linejoin="round">
+        <path d="M5 12.55a11 11 0 0 1 14.08 0" />
+        <path d="M1.42 9a16 16 0 0 1 21.16 0" />
+        <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
+        <circle cx="12" cy="20" r="1" />
+      </svg>
     </div>
-
-    <div id="input-area">
-      <textarea
-        id="question"
-        placeholder="Ask about 5G architecture, NR procedures, network slicing..."
-      ></textarea>
-      <button id="send-btn" onclick="sendMessage()">
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="white"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <line x1="22" y1="2" x2="11" y2="13" />
-          <polygon points="22 2 15 22 11 13 2 9 22 2" />
-        </svg>
-      </button>
+    <div>
+      <h1>3GPP RAG Chatbot</h1>
     </div>
+    <span class="badge">Near-Zero Hallucination</span>
+  </header>
 
-    <script>
-      const chatContainer = document.getElementById("chat-container");
-      const questionInput = document.getElementById("question");
-      const sendBtn = document.getElementById("send-btn");
+  <div id="chat-container">
+    <div class="welcome" id="welcome">
+      <h2>Ask anything about 3GPP Standards</h2>
+      <p>TS 23.501 · TS 21.915 · Grounded answers with source citations</p>
+    </div>
+  </div>
 
-      const SVG_USER = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
-      const SVG_BOT = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b8c78" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>`;
-      const SVG_DOC = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`;
-      const SVG_OK = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
-      const SVG_WARN = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+  <div id="input-area">
+    <textarea id="question" placeholder="Ask about 5G architecture, NR procedures, network slicing..."></textarea>
+    <button id="send-btn" onclick="sendMessage()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"
+        stroke-linejoin="round">
+        <line x1="22" y1="2" x2="11" y2="13" />
+        <polygon points="22 2 15 22 11 13 2 9 22 2" />
+      </svg>
+    </button>
+  </div>
 
-      questionInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-          e.preventDefault();
-          sendMessage();
-        }
-      });
+  <script>
+    const chatContainer = document.getElementById("chat-container");
+    const questionInput = document.getElementById("question");
+    const sendBtn = document.getElementById("send-btn");
 
-      function appendMessage(role, content, meta = null) {
-        document.getElementById("welcome")?.remove();
-        const div = document.createElement("div");
-        div.className = `message ${role}`;
+    const SVG_USER = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
+    const SVG_BOT = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b8c78" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>`;
+    const SVG_DOC = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`;
+    const SVG_OK = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+    const SVG_WARN = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
 
-        let bubbleHTML = `<p>${content
-          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-          .replace(/\n/g, "<br>")}</p>`;
+    questionInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
 
-        if (meta) {
-          const confClass = meta.confidence || "none";
-          const sources = (meta.sources || [])
-            .map((s) => `<span class="tag source">${SVG_DOC} ${s}</span>`)
-            .join("");
-          bubbleHTML += `
+    function appendMessage(role, content, meta = null) {
+      document.getElementById("welcome")?.remove();
+      const div = document.createElement("div");
+      div.className = `message ${role}`;
+
+      let bubbleHTML = `<p>${content
+        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+        .replace(/\n/g, "<br>")}</p>`;
+
+      if (meta) {
+        const confClass = meta.confidence || "none";
+        const sources = (meta.sources || [])
+          .map((s) => `<span class="tag source">${SVG_DOC} ${s}</span>`)
+          .join("");
+        bubbleHTML += `
         <div class="meta">
           <span class="tag ${confClass}">Confidence: ${confClass}</span>
           <span class="tag ${meta.grounded ? "high" : "none"}">
@@ -393,63 +400,64 @@
           </span>
           ${sources}
         </div>`;
-        }
+      }
 
-        div.innerHTML = `
+      div.innerHTML = `
       <div class="avatar">${role === "user" ? SVG_USER : SVG_BOT}</div>
       <div class="bubble">${bubbleHTML}</div>`;
-        chatContainer.appendChild(div);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-      }
+      chatContainer.appendChild(div);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
 
-      function showTyping() {
-        const div = document.createElement("div");
-        div.className = "message bot";
-        div.id = "typing-indicator";
-        div.innerHTML = `
+    function showTyping() {
+      const div = document.createElement("div");
+      div.className = "message bot";
+      div.id = "typing-indicator";
+      div.innerHTML = `
       <div class="avatar">${SVG_BOT}</div>
       <div class="bubble typing"><span></span><span></span><span></span></div>`;
-        chatContainer.appendChild(div);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+      chatContainer.appendChild(div);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function removeTyping() {
+      document.getElementById("typing-indicator")?.remove();
+    }
+
+    async function sendMessage() {
+      const question = questionInput.value.trim();
+      if (!question) return;
+
+      appendMessage("user", question);
+      questionInput.value = "";
+      sendBtn.disabled = true;
+      showTyping();
+
+      try {
+        const response = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question, top_k: 5 }),
+        });
+        const data = await response.json();
+        removeTyping();
+        appendMessage("bot", data.answer, {
+          confidence: data.confidence,
+          grounded: data.grounded,
+          sources: data.sources,
+        });
+      } catch (err) {
+        removeTyping();
+        appendMessage(
+          "bot",
+          "Server error. Make sure the backend is running.",
+        );
+      } finally {
+        sendBtn.disabled = false;
+        questionInput.focus();
       }
+    }
+  </script>
+</body>
 
-      function removeTyping() {
-        document.getElementById("typing-indicator")?.remove();
-      }
-
-      async function sendMessage() {
-        const question = questionInput.value.trim();
-        if (!question) return;
-
-        appendMessage("user", question);
-        questionInput.value = "";
-        sendBtn.disabled = true;
-        showTyping();
-
-        try {
-          const response = await fetch("/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ question, top_k: 5 }),
-          });
-          const data = await response.json();
-          removeTyping();
-          appendMessage("bot", data.answer, {
-            confidence: data.confidence,
-            grounded: data.grounded,
-            sources: data.sources,
-          });
-        } catch (err) {
-          removeTyping();
-          appendMessage(
-            "bot",
-            "Server error. Make sure the backend is running.",
-          );
-        } finally {
-          sendBtn.disabled = false;
-          questionInput.focus();
-        }
-      }
-    </script>
-  </body>
 </html>
