@@ -11,6 +11,9 @@ from rag.hallucination import check_hallucination_risk
 
 load_dotenv()
 
+# In-memory cache: normalized question -> full response dict
+_response_cache: dict[str, dict] = {}
+
 app = FastAPI(title="3GPP RAG Chatbot — Mavenir")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -32,17 +35,28 @@ def serve_ui():
 
 @app.post("/chat")
 def chat(request: QueryRequest):
+    cache_key = request.question.strip().lower()
+
+    # Return cached answer if the same question was asked before
+    if cache_key in _response_cache:
+        cached = _response_cache[cache_key].copy()
+        cached["cached"] = True
+        return cached
+
     docs = retriever.retrieve(request.question, top_k=request.top_k)
     result = generator.generate(request.question, docs)
     guarded = check_hallucination_risk(docs, result["answer"])
-    return {
+    response = {
         "question": request.question,
         "answer": guarded["answer"],
         "confidence": guarded["confidence"],
         "grounded": guarded["grounded"],
         "sources": guarded["sources"],
-        "retrieved_count": len(docs)
+        "retrieved_count": len(docs),
+        "cached": False
     }
+    _response_cache[cache_key] = response
+    return response
 
 
 @app.get("/health")

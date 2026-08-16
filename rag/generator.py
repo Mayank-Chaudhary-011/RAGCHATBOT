@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 MODEL = "nvidia/nemotron-3.5-lightning-30b-a3b"
-TEMPERATURE = 0.1
+TEMPERATURE = 0
 MAX_TOKENS = 1024
 
 SYSTEM_PROMPT = """You are a precise 3GPP Telecom Standards assistant.
