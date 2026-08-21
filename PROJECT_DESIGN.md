@@ -14,33 +14,43 @@ A Retrieval-Augmented Generation (RAG) chatbot that answers questions on 3GPP Te
 ## 3. System Architecture
 
 ```
-                    ┌──────────────────────────┐
-                    │      User Interface       │
-                    │   (static/index.html)     │
-                    └────────────┬─────────────┘
-                                 │ POST /chat
-                                 ▼
-                    ┌──────────────────────────┐
-                    │     FastAPI Server        │
-                    │       (main.py)           │
-                    └────────────┬─────────────┘
-                                 │
-              ┌──────────────────┼──────────────────┐
-              ▼                  ▼                   ▼
-     ┌────────────────┐ ┌───────────────┐ ┌──────────────────┐
-     │   Retriever     │ │   Generator   │ │  Hallucination   │
-     │ (retriever.py)  │ │(generator.py) │ │     Guard        │
-     └───────┬────────┘ └───────────────┘ │(hallucination.py)│
-             │                             └──────────────────┘
-     ┌───────┴────────┐
-     │   Embedder      │
-     │  (embedder.py)  │
-     └───────┬────────┘
-             │
-     ┌───────┴────────┐
-     │   ChromaDB      │
-     │(vectorstore.py) │
-     └────────────────┘
+         ┌──────────────────────────┐
+         │      User Interface       │
+         │   (static/index.html)     │
+         └────────────┬─────────────┘
+                      │ POST /chat
+                      ▼
+         ┌──────────────────────────┐
+         │     FastAPI Server        │
+         │       (main.py)           │
+         └────────────┬─────────────┘
+                      │
+                      ▼
+         ┌──────────────────────────┐
+         │       Retriever           │
+         │    (retriever.py)         │
+         │         │                 │
+         │    Embedder (embedder.py) │
+         │         │                 │
+         │    ChromaDB               │
+         │    (vectorstore.py)       │
+         └────────────┬─────────────┘
+                      │ retrieved chunks
+                      ▼
+         ┌──────────────────────────┐
+         │       Generator           │
+         │    (generator.py)         │
+         └────────────┬─────────────┘
+                      │ generated answer
+                      ▼
+         ┌──────────────────────────┐
+         │   Hallucination Guard     │
+         │  (hallucination.py)       │
+         └────────────┬─────────────┘
+                      │
+                      ▼
+              Response (JSON)
+    answer + confidence + grounded + sources
 ```
 
 ## 4. Data Flow
@@ -156,10 +166,11 @@ Five layers of protection working together:
   "confidence": "high",
   "grounded": true,
   "sources": ["23501-k20.docx"],
-  "retrieved_count": 5,
-  "cached": false
+  "retrieved_count": 5
 }
 ```
+
+> Repeated queries are served from an in-memory cache to avoid redundant API calls.
 
 ### `GET /health`
 
@@ -172,7 +183,7 @@ CHATBOT/
 ├── main.py                ← FastAPI server + /chat endpoint
 ├── ingest.py              ← One-time ingestion pipeline
 ├── requirements.txt       ← Python dependencies
-├── Dockerfile             ← Container deployment
+├── DockerFile             ← Container deployment
 ├── .env                   ← API keys (not committed)
 │
 ├── rag/
